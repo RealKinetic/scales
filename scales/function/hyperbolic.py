@@ -18,10 +18,10 @@ class Hyperbolic(Function):
         self._scalar = scalar
 
     def evaluate(self, value):
-        """Returns 1 / (1 - scalar * value)
+        """Returns 1 / (1 + scalar * value)
 
         :param value: value to use in the divisor
         :type value: int or long or float
         :return: float
         """
-        return 1 / (1 - self._scalar * value)
+        return float(1) / (1 + self._scalar * value)

@@ -26,4 +26,4 @@ class Linear(Function):
         :return: y
         :rtype: float
         """
-        return self._slope * value + self._y_intercept
+        return float(self._slope) * value + self._y_intercept
