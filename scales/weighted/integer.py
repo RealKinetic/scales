@@ -23,12 +23,12 @@ def integer(function, floor, ceiling):
     # fairly simple algorithm, sums all the weights, chooses a random value between 0 and summation, and iterates
     # to find the index of the value that surpasses the random value.  That will match the choice.
 
-    weights = [function(i) for i in xrange(floor, ceiling)]
+    weights = [function.evaluate(i) for i in xrange(floor, ceiling+1)]
     total = sum(weights)
 
     selection = random.uniform(0, total)
     agg = 0
-    for i, value in enumerate(xrange(floor, ceiling)):
+    for i, value in enumerate(xrange(floor, ceiling+1)):
         agg += weights[i]
         if agg >= selection:
             return value
