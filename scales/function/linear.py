@@ -13,7 +13,7 @@ class Linear(Function):
         :param slope: defines how drastic the curve weights items.
         :type slope: int or long
         :param y_intercept: defines some constant offset to apply to the resulting value
-        :type y_intercept: int or long
+        :type y_intercept: int or long or float
         """
         self._slope = slope
         self._y_intercept = y_intercept
@@ -24,6 +24,6 @@ class Linear(Function):
         :param value: the value for x
         :type value: int or long
         :return: y
-        :rtype: int or long
+        :rtype: float
         """
         return self._slope * value + self._y_intercept

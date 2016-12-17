@@ -15,7 +15,7 @@ class Exponential(Function):
         ie, using a negative scalar.
 
         :param scalar: user-defined slope adjustment
-        :type scalar: int or long
+        :type scalar: int or long or float
         """
         self._scalar = scalar
 
@@ -23,7 +23,7 @@ class Exponential(Function):
         """Returns e**(scalar * value).
 
         :param value: value to use as the exponent to e
-        :type value: int or long
-        :return: long
+        :type value: int or long or float
+        :return: float
         """
         return math.exp(self._scalar * value)

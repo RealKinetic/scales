@@ -13,7 +13,7 @@ class Hyperbolic(Function):
         ie, using a negative scalar.
 
         :param scalar: user-defined slope adjustment
-        :type scalar: int or long
+        :type scalar: int or long or float
         """
         self._scalar = scalar
 
@@ -21,7 +21,7 @@ class Hyperbolic(Function):
         """Returns 1 / (1 - scalar * value)
 
         :param value: value to use in the divisor
-        :type value: int or long
-        :return: long
+        :type value: int or long or float
+        :return: float
         """
         return 1 / (1 - self._scalar * value)
