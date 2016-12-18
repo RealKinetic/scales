@@ -17,6 +17,9 @@ def integer(function, floor, ceiling):
     :rtype: int
     :raises: ValueError if floor > ceiling
     """
+    assert type(floor) is int
+    assert type(ceiling) is int
+
     if floor > ceiling:
         raise ValueError('floor %d must be greater than ceiling %d' % (floor, ceiling))
 
@@ -33,4 +36,4 @@ def integer(function, floor, ceiling):
         if agg >= selection:
             return value
 
-    assert False, "bug in weighted code"
+    raise RuntimeError('error in weighted code')

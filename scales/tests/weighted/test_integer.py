@@ -37,3 +37,13 @@ class TestInteger(unittest.TestCase):
         f = function.Linear()
 
         self.assertRaises(ValueError, weighted.integer, f, 3, 2)
+
+    def test_floor_not_int(self):
+        f = function.Linear()
+
+        self.assertRaises(AssertionError, weighted.integer, f, 'a', 2)
+
+    def test_ceiling_not_int(self):
+        f = function.Linear()
+
+        self.assertRaises(AssertionError, weighted.integer, f, 2, 'a')
