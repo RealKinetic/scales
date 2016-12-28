@@ -47,3 +47,9 @@ class TestInteger(unittest.TestCase):
         f = function.Linear()
 
         self.assertRaises(AssertionError, weighted.integer, f, 2, 'a')
+
+    def test_weighted_choice_last(self):
+        f = function.Linear()
+
+        result = weighted.integer(f, 1, 1)
+        self.assertEqual(1, result)

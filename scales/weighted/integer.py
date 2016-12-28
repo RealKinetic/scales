@@ -23,6 +23,9 @@ def integer(function, floor, ceiling):
     if floor > ceiling:
         raise ValueError('floor %d must be greater than ceiling %d' % (floor, ceiling))
 
+    if floor == ceiling:
+        return floor
+
     # fairly simple algorithm, sums all the weights, chooses a random value between 0 and summation, and iterates
     # to find the index of the value that surpasses the random value.  That will match the choice.
 
