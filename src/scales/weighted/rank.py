@@ -160,6 +160,8 @@ def fuzzy_string_sort(min_levenshtein_distance, *args):
     identical strings are found in the different iterables, the returned list
     takes the value of the previous-major or highest precedent iterable.
 
+    Unfortunately, this is an O(n^2) operation.
+
     :param min_levenshtein_distance: minimum edit distance for strings to be
         considered identical
     :type min_levenshtein_distance: int or long
@@ -175,26 +177,25 @@ def fuzzy_string_sort(min_levenshtein_distance, *args):
     reduced = set()  # going to keep track of strings that have been reduced
     for i, ib in enumerate(ibs[:len(ibs)-1]):
         local_reduced = set()
-        for str_, item in ib.iteritems():
-            if str_ in reduced:
-                continue
+        for next_ib in ibs[i+1:]:
+            for str_, item in ib.iteritems():
+                if str_ in reduced:
+                    continue
 
-            next_ib = ibs[i+1]
+                result = process.extractOne(
+                    str_,
+                    next_ib.keys(),
+                    score_cutoff=min_levenshtein_distance,
+                )
 
-            result = process.extractOne(
-                str_,
-                next_ib.keys(),
-                score_cutoff=min_levenshtein_distance,
-            )
+                if result is None:  # can get ''
+                    continue
 
-            if result is None:  # can get ''
-                continue
-
-            result_str = result[0]
-            local_reduced.add(str_)
-            next_item = next_ib[result_str]
-            del next_ib[result_str]
-            next_ib[str_] = next_item
+                result_str = result[0]
+                local_reduced.add(str_)
+                next_item = next_ib[result_str]
+                del next_ib[result_str]
+                next_ib[str_] = next_item
 
         reduced |= local_reduced
 
