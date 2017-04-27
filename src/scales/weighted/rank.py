@@ -16,6 +16,8 @@ import abc
 import collections
 import six
 
+from fuzzywuzzy import process
+
 
 class WeightedBase(six.with_metaclass(abc.ABCMeta, collections.Iterable)):
     """Provides a simple iterable that takes a weight and applies it to the items
@@ -30,6 +32,22 @@ class WeightedBase(six.with_metaclass(abc.ABCMeta, collections.Iterable)):
 
         :return: weight of these items
         :rtype: number
+        """
+        pass
+
+
+class WeightedFuzzyStringBase(WeightedBase):
+    """Like WeightedBase but operates on strings and in a fuzzy manner.
+    """
+    @abc.abstractmethod
+    def to_string(self, obj):
+        """Return the string representation of the obj.  Similar to sorted's
+        key argument.
+
+        :param obj: object to stringify
+        :type obj: object
+        :return: string representation
+        :rtype: str
         """
         pass
 
@@ -67,7 +85,7 @@ class WeightedIterable(WeightedBase):
         return self._weight
 
 
-def rank(*args):
+def sort(*args):
     """Takes a list of WeightedBase and returns a sorted list of items by rank
     descending.  Items should all be of the same type.
 
@@ -85,3 +103,112 @@ def rank(*args):
     weighted = [(score, value) for value, score in items.iteritems()]
     weighted = sorted(weighted, key=lambda x: x[0], reverse=True)
     return map(lambda x: x[1], weighted)
+
+
+class WeightedFuzzyStringIterable(WeightedFuzzyStringBase):
+    """An implementation for use with fuzzy string matching.
+    """
+    def __init__(self, weight, key, iterable):
+        """Accepts a weight and any iterable which will be used to hydrate
+        this iterable.
+
+        :param weight: weight to apply to the items
+        :type weight: number
+        :param key: lambda or function used to retrieve the string key of an item
+        :type key: lambda x -> str
+        :param iterable: any iterable
+        :type iterable: collections.Iterable
+        """
+        self._weight = weight
+        self._iterable = iterable
+        self._key = key
+
+    def __iter__(self):
+        """Returns an iterator from the underlying iterable.
+
+        :return: iterator
+        :rtype: collections.Iterator
+        """
+        return iter(self._iterable)
+
+    @property
+    def weight(self):
+        """The weight to apply to items from the iterator.
+
+        :return: weight
+        :rtype: number
+        """
+        return self._weight
+
+    def to_string(self, obj):
+        """Returns the string representation of the provided object.
+
+        :param obj: object to stringify
+        :type obj: object
+        :return: string representation
+        :rtype: str
+        """
+        return self._key(obj)
+
+
+def fuzzy_string_sort(min_levenshtein_distance, *args):
+    """Does a sorting of the provided iterables represented by args by also
+    employs a fuzzy string matching algorithm to match similar strings from
+    the iterables.  Strings are determined to be identical using a
+    levenshtein distance, or minimum edit distance.  If that number is above
+    the threshold provided, the strings are considered to be identical.  If
+    identical strings are found in the different iterables, the returned list
+    takes the value of the previous-major or highest precedent iterable.
+
+    :param min_levenshtein_distance: minimum edit distance for strings to be
+        considered identical
+    :type min_levenshtein_distance: int or long
+    :param args: list of iterables to merge for the weighted sort
+    :type args: list(WeightedFuzzyStringBase)
+    :return: sorted list of weighted items, descending
+    :rtype: list(obj)
+    """
+    # first thing we're going to do is collapse all the iterables to lists
+    ibs = [dict((ib.to_string(item), item) for item in ib) for ib in args]
+
+    # reduce identical strings
+    reduced = set()  # going to keep track of strings that have been reduced
+    for i, ib in enumerate(ibs[:len(ibs)-1]):
+        local_reduced = set()
+        for str_, item in ib.iteritems():
+            if str_ in reduced:
+                continue
+
+            next_ib = ibs[i+1]
+
+            result = process.extractOne(
+                str_,
+                next_ib.keys(),
+                score_cutoff=min_levenshtein_distance,
+            )
+
+            if result is None:  # can get ''
+                continue
+
+            result_str = result[0]
+            local_reduced.add(str_)
+            next_item = next_ib[result_str]
+            del next_ib[result_str]
+            next_ib[str_] = next_item
+
+        reduced |= local_reduced
+
+    # now what we have left is a list of dicts where all the keys have been
+    # reduced.  We need to convert these dicts into WeightedBase
+
+    wbs = [
+        WeightedIterable(args[i].weight, ibs[i].keys())
+        for i in xrange(0, len(ibs))
+    ]
+
+    all_items = {}
+    for ib in reversed(ibs):
+        all_items.update(ib)
+
+    result = sort(*wbs)
+    return map(lambda x: all_items.get(x), result)
