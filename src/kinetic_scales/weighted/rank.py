@@ -171,20 +171,23 @@ def fuzzy_string_sort(min_levenshtein_distance, *args):
     :rtype: list(obj)
     """
     # first thing we're going to do is collapse all the iterables to lists
-    ibs = [dict((ib.to_string(item), item) for item in ib) for ib in args]
+    ibs = [[ib.to_string(x) for x in ib] for ib in args]
+    all_items = {}
+    for ib in reversed(args):
+        all_items.update(dict((ib.to_string(x), x) for x in list(ib)))
 
     # reduce identical strings
     reduced = set()  # going to keep track of strings that have been reduced
     for i, ib in enumerate(ibs[:len(ibs)-1]):
         local_reduced = set()
         for next_ib in ibs[i+1:]:
-            for str_, item in ib.iteritems():
+            for str_ in ib:
                 if str_ in reduced:
                     continue
 
                 result = process.extractOne(
                     str_,
-                    next_ib.keys(),
+                    next_ib,
                     score_cutoff=min_levenshtein_distance,
                 )
 
@@ -193,23 +196,17 @@ def fuzzy_string_sort(min_levenshtein_distance, *args):
 
                 result_str = result[0]
                 local_reduced.add(str_)
-                next_item = next_ib[result_str]
-                del next_ib[result_str]
-                next_ib[str_] = next_item
+                idx = next_ib.index(result_str)
+                next_ib[idx] = str_
 
         reduced |= local_reduced
 
     # now what we have left is a list of dicts where all the keys have been
     # reduced.  We need to convert these dicts into WeightedBase
-
     wbs = [
-        WeightedIterable(args[i].weight, ibs[i].keys())
+        WeightedIterable(args[i].weight, ibs[i])
         for i in xrange(0, len(ibs))
-    ]
-
-    all_items = {}
-    for ib in reversed(ibs):
-        all_items.update(ib)
+        ]
 
     result = sort(*wbs)
     return map(lambda x: all_items.get(x), result)
