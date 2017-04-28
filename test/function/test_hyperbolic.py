@@ -2,7 +2,7 @@
 
 import unittest
 
-from scales.function import Hyperbolic
+from kinetic_scales.function import Hyperbolic
 
 
 class TestHyperbolic(unittest.TestCase):

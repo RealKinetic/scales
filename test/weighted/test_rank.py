@@ -2,7 +2,7 @@
 
 import unittest
 
-from scales.weighted import rank
+from kinetic_scales.weighted import rank
 
 
 class RankTestCase(unittest.TestCase):

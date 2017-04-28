@@ -2,7 +2,7 @@
 
 import unittest
 
-from scales.function import Exponential
+from kinetic_scales.function import Exponential
 
 
 class TestExponential(unittest.TestCase):

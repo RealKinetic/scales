@@ -2,7 +2,7 @@
 
 import unittest
 
-from scales.function import Linear
+from kinetic_scales.function import Linear
 
 
 class TestLinear(unittest.TestCase):
