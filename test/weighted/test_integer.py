@@ -3,8 +3,8 @@
 import mock
 import unittest
 
-from scales import function
-from scales import weighted
+from kinetic_scales import function
+from kinetic_scales import weighted
 
 
 class TestInteger(unittest.TestCase):
