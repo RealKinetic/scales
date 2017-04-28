@@ -16,4 +16,5 @@ setup(
     download_url='https://github.com/RealKinetic/scales/archive/v1.0.1.tar.gz',
     keywords=['weighted', 'random', 'choice'],
     classifiers=[],
+    install_requires=['fuzzywuzzy'],
 )
