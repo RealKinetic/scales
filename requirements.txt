@@ -1,1 +1,1 @@
-fuzzywuzzy
+git+ssh://git@github.com/RealKinetic/fuzzywuzzy.git#egg=fuzzywuzzy
